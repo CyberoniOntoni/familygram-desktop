@@ -1,87 +1,92 @@
-# [Telegram Desktop][telegram_desktop] – Official Messenger
+# FamilyGram
 
-This is the complete source code and the build instructions for the official [Telegram][telegram] messenger desktop client, based on the [Telegram API][telegram_api] and the [MTProto][telegram_proto] secure protocol.
+Universal Windows desktop client for self-hosted [Testgram](https://github.com/CyberoniOntoni/testgram) servers. FamilyGram is based on [Telegram Desktop](https://github.com/telegramdesktop/tdesktop) and prompts for your server address instead of hardcoding endpoints.
 
-**Testgram fork:** the `dev` branch is preconfigured for the [AcmeChat](https://github.com/CyberoniOntoni/testgram/blob/dev/deploy/DEPLOYMENT-example.md) server (`203.0.113.50`, MTProto `20443`–`20643`). See **[docs/BUILD-testgram.md](docs/BUILD-testgram.md)** for Windows build steps and login checklist.
+## Features
 
-[![Version](https://badge.fury.io/gh/telegramdesktop%2Ftdesktop.svg)](https://github.com/telegramdesktop/tdesktop/releases)
-[![Build Status](https://github.com/telegramdesktop/tdesktop/workflows/Windows./badge.svg)](https://github.com/telegramdesktop/tdesktop/actions)
-[![Build Status](https://github.com/telegramdesktop/tdesktop/workflows/MacOS./badge.svg)](https://github.com/telegramdesktop/tdesktop/actions)
-[![Build Status](https://github.com/telegramdesktop/tdesktop/workflows/Linux./badge.svg)](https://github.com/telegramdesktop/tdesktop/actions)
+- **First-run server setup** — enter your server's IP address or domain on launch
+- **Dynamic DC discovery** — connects via bootstrap ports, calls `help.getConfig`, and stores the full DC list from your server
+- **Change server** — switch servers anytime under **Settings → Advanced → FamilyGram → Change server**
+- **Persistent host** — server address is saved in `tdata/familygram_server`
 
-[![Preview of Telegram Desktop][preview_image]][preview_image_url]
+## How it works
 
-The source code is published under GPLv3 with OpenSSL exception, the license is available [here][license].
+On first launch (or after changing the server), FamilyGram:
 
-## Supported systems
+1. Connects to your host on bootstrap MTProto ports `20443`, `20543`, and `20643`
+2. Fetches DC options via `help.getConfig`
+3. Saves the host and applies the returned DC configuration
+4. Continues to the normal sign-in flow (QR or phone)
 
-The latest version is available for
+Changing the server signs you out on the device and requires signing in again.
 
-* [Windows 7 and above (64 bit)](https://telegram.org/dl/desktop/win64) ([portable](https://telegram.org/dl/desktop/win64_portable))
-* [Windows 7 and above (32 bit)](https://telegram.org/dl/desktop/win) ([portable](https://telegram.org/dl/desktop/win_portable))
-* [macOS 10.13 and above](https://telegram.org/dl/desktop/mac)
-* [Linux static build for 64 bit](https://telegram.org/dl/desktop/linux)
-* [Snap](https://snapcraft.io/telegram-desktop)
-* [Flatpak](https://flathub.org/apps/details/org.telegram.desktop)
+## Sign in
 
-## Old system versions
+1. Deploy a [Testgram](https://github.com/CyberoniOntoni/testgram) server and configure its login bot
+2. Link your phone number with the bot (typically `/start` in the bot chat)
+3. Launch FamilyGram and enter your server address
+4. Sign in with the linked phone number and enter the code from the bot chat
 
-Version **4.9.9** was the last that supports older systems
+Use the **public** IP or domain that clients can reach over the internet — not a LAN-only address, unless every client is on that network.
 
-* [macOS 10.12](https://updates.tdesktop.com/tmac/tsetup.4.9.9.dmg)
-* [Linux with glibc < 2.28 static build](https://updates.tdesktop.com/tlinux/tsetup.4.9.9.tar.xz)
+## Server requirements
 
-Version **2.4.4** was the last that supports older systems
+FamilyGram works with any Testgram deployment that exposes standard MTProto ports. Typical setup:
 
-* [OS X 10.10 and 10.11](https://updates.tdesktop.com/tosx/tsetup-osx.2.4.4.dmg)
-* [Linux static build for 32 bit](https://updates.tdesktop.com/tlinux32/tsetup32.2.4.4.tar.xz)
+| Setting | Example |
+|---------|---------|
+| MTProto ports | `20443`, `20543`, `20643` (and media DC, e.g. `20644`) |
+| STUN/TURN | `5348` + relay range as configured on your server |
+| Login bot | Server-specific Telegram bot for phone linking and codes |
 
-Version **1.8.15** was the last that supports older systems
+No server-side changes are required beyond a normal Testgram deployment — the client uses the existing `help.getConfig` response for DC options.
 
-* [Windows XP and Vista](https://updates.tdesktop.com/tsetup/tsetup.1.8.15.exe) ([portable](https://updates.tdesktop.com/tsetup/tportable.1.8.15.zip))
-* [OS X 10.8 and 10.9](https://updates.tdesktop.com/tmac/tsetup.1.8.15.dmg)
-* [OS X 10.6 and 10.7](https://updates.tdesktop.com/tmac32/tsetup32.1.8.15.dmg)
+## Build (Windows)
 
-## Third-party
+FamilyGram targets **Windows 64-bit**. Full upstream instructions are in [docs/building-win.md](docs/building-win.md).
 
-* Qt 6 ([LGPL](http://doc.qt.io/qt-6/lgpl.html)) and Qt 5.15 ([LGPL](http://doc.qt.io/qt-5/lgpl.html)) slightly patched
-* OpenSSL 3.2.1 ([Apache License 2.0](https://www.openssl.org/source/apache-license-2.0.txt))
-* WebRTC ([New BSD License](https://github.com/desktop-app/tg_owt/blob/master/LICENSE))
-* zlib ([zlib License](http://www.zlib.net/zlib_license.html))
-* LZMA SDK 9.20 ([public domain](http://www.7-zip.org/sdk.html))
-* liblzma ([public domain](http://tukaani.org/xz/))
-* Google Breakpad ([License](https://chromium.googlesource.com/breakpad/breakpad/+/master/LICENSE))
-* Google Crashpad ([Apache License 2.0](https://chromium.googlesource.com/crashpad/crashpad/+/master/LICENSE))
-* GYP ([BSD License](https://github.com/bnoordhuis/gyp/blob/master/LICENSE))
-* Ninja ([Apache License 2.0](https://github.com/ninja-build/ninja/blob/master/COPYING))
-* OpenAL Soft ([LGPL](https://github.com/kcat/openal-soft/blob/master/COPYING))
-* Opus codec ([BSD License](http://www.opus-codec.org/license/))
-* FFmpeg ([LGPL](https://www.ffmpeg.org/legal.html))
-* Guideline Support Library ([MIT License](https://github.com/Microsoft/GSL/blob/master/LICENSE))
-* Range-v3 ([Boost License](https://github.com/ericniebler/range-v3/blob/master/LICENSE.txt))
-* Open Sans font ([Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.html))
-* Vazirmatn font ([SIL Open Font License 1.1](https://github.com/rastikerdar/vazirmatn/blob/master/OFL.txt))
-* Emoji alpha codes ([MIT License](https://github.com/emojione/emojione/blob/master/extras/alpha-codes/LICENSE.md))
-* xxHash ([BSD License](https://github.com/Cyan4973/xxHash/blob/dev/LICENSE))
-* QR Code generator ([MIT License](https://github.com/nayuki/QR-Code-generator#license))
-* CMake ([New BSD License](https://github.com/Kitware/CMake/blob/master/Copyright.txt))
-* Hunspell ([LGPL](https://github.com/hunspell/hunspell/blob/master/COPYING.LESSER))
-* Ada ([Apache License 2.0](https://github.com/ada-url/ada/blob/main/LICENSE-APACHE))
+### Prerequisites
 
-## Build instructions
+- Visual Studio 2022 or 2026 with Desktop development and Windows 10/11 SDK
+- Python 3.10 and Git on `PATH`
+- **api_id** and **api_hash** from [my.telegram.org](https://my.telegram.org/apps) — see [docs/api_credentials.md](docs/api_credentials.md)
 
-* [Windows (32-bit and 64-bit)][win]
-* [macOS][mac]
-* [GNU/Linux using Docker][linux]
+Create a build folder (e.g. `D:\TBuild`) with `ThirdParty` and `Libraries` subfolders.
 
-[//]: # (LINKS)
-[telegram]: https://telegram.org
-[telegram_desktop]: https://desktop.telegram.org
-[telegram_api]: https://core.telegram.org
-[telegram_proto]: https://core.telegram.org/mtproto
-[license]: LICENSE
-[win]: docs/building-win.md
-[mac]: docs/building-mac.md
-[linux]: docs/building-linux.md
-[preview_image]: https://github.com/telegramdesktop/tdesktop/blob/dev/docs/assets/preview.png "Preview of Telegram Desktop"
-[preview_image_url]: https://raw.githubusercontent.com/telegramdesktop/tdesktop/dev/docs/assets/preview.png
+### Quick build
+
+```bat
+%comspec% /k "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
+
+git clone --recursive https://github.com/CyberoniOntoni/familygram-desktop.git
+cd familygram-desktop
+Telegram\build\prepare\win.bat
+
+cd Telegram
+configure.bat x64 -D TDESKTOP_API_ID=YOUR_API_ID -D TDESKTOP_API_HASH=YOUR_API_HASH
+
+cmake --build ..\out --config Release --parallel
+```
+
+The built executable is `out\Release\Telegram.exe` (product name: **FamilyGram**).
+
+`prepare\win.bat` downloads Qt and other dependencies — the first run takes a long time and requires network access.
+
+## Project layout
+
+| Path | Purpose |
+|------|---------|
+| `Telegram/SourceFiles/core/familygram_server.*` | Host validation, bootstrap ports, DC option application |
+| `Telegram/SourceFiles/intro/intro_server.*` | First-run server connection step |
+| `Telegram/SourceFiles/settings/sections/settings_advanced.cpp` | Settings UI for changing server |
+| `Telegram/SourceFiles/storage/localstorage.*` | Read/write `familygram_server` host file |
+| `Telegram/SourceFiles/core/version.h` | App name and version |
+
+## License
+
+Source code is published under GPLv3 with OpenSSL exception. See [LICENSE](LICENSE) and [LEGAL](LEGAL).
+
+## Credits
+
+- [Telegram Desktop](https://github.com/telegramdesktop/tdesktop) — upstream client
+- [Testgram](https://github.com/CyberoniOntoni/testgram) — self-hosted Telegram server
