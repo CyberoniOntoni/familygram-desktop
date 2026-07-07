@@ -1,3 +1,12 @@
+6.7.8-familygram (07.07.26)
+
+- First FamilyGram Windows release for self-hosted Testgram servers.
+- Prompt for server address on first launch; host saved in tdata.
+- Bootstrap DC connection via custom server host and ports.
+- Skip cloud language pack when using a private server.
+- Rebrand to FamilyGram (Familygram.exe).
+- Windows build fixes for zlib, minizip, lib_base, and spellcheck.
+
 6.7.8 (24.04.26)
 
 - Proxy auto-rotation option.
