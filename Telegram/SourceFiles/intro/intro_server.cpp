@@ -27,7 +27,7 @@ ServerWidget::ServerWidget(
 	not_null<Data*> data)
 : Step(parent, account, data)
 , _host(this, st::introPhone, rpl::single(
-	u"e.g. 203.0.113.50 or family.example.com"_q)) {
+	u"e.g. 203.0.113.50 or tg.example.com"_q)) {
 	setTitleText(rpl::single(u"Connect to your server"_q));
 	setDescriptionText(rpl::single(
 		u"Enter the IP address or domain of your FamilyGram server. "

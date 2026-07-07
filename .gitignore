@@ -70,3 +70,8 @@ settings.local.json
 
 # Generated changelog page (built by CI, deployed to GitHub Pages)
 /docs/changelog/
+
+# Local test runs and deployment secrets (never commit real hosts/IPs)
+/clean_run/
+*.local.md
+docs/BUILD.local.md
