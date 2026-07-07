@@ -12,6 +12,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "calls/group/calls_group_messages.h"
 #include "chat_helpers/stickers_lottie.h"
 #include "core/application.h"
+#include "core/version.h"
 #include "history/history.h"
 #include "history/history_item.h"
 #include "history/history_item_components.h"
@@ -1590,7 +1591,7 @@ not_null<Reaction*> Reactions::lookupPaid() {
 		const auto select = generate(u"star_reaction_select"_q);
 		_paid.emplace(Reaction{
 			.id = ReactionId::Paid(),
-			.title = u"Testgram Star"_q,
+			.title = AppName.utf16() + u" Star"_q,
 			.appearAnimation = appear,
 			.selectAnimation = select,
 			.centerIcon = center,

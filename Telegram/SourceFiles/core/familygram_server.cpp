@@ -58,4 +58,15 @@ void ApplyBootstrapDcOptions(not_null<MTP::DcOptions*> options) {
 	options->constructFromBuiltIn();
 }
 
+bool HasConfiguredServer() {
+	return !Local::readFamilyGramServerHost().isEmpty();
+}
+
+void EnsureBootstrapDcOptions(not_null<MTP::DcOptions*> options) {
+	if (!HasConfiguredServer()) {
+		return;
+	}
+	ApplyBootstrapDcOptions(options);
+}
+
 } // namespace FamilyGram

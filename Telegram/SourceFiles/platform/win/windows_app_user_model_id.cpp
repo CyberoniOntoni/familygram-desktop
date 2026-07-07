@@ -11,6 +11,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "platform/win/windows_toast_activator.h"
 #include "base/platform/win/base_windows_winrt.h"
 #include "core/launcher.h"
+#include "core/version.h"
 
 #include <propvarutil.h>
 #include <propkey.h>
@@ -213,7 +214,7 @@ void CleanupShortcut() {
 		return;
 	}
 
-	QString path = systemShortcutPath() + u"Testgram.lnk"_q;
+	QString path = systemShortcutPath() + AppName.utf16() + u".lnk"_q;
 	std::wstring p = QDir::toNativeSeparators(path).toStdWString();
 
 	DWORD attributes = GetFileAttributes(p.c_str());
@@ -345,8 +346,8 @@ bool checkInstalled(QString path = {}) {
 		}
 	}
 
-	const auto installed = u"Testgram Desktop/Testgram.lnk"_q;
-	const auto old = u"Telegram Win (Unofficial)/Testgram.lnk"_q;
+	const auto installed = AppName.utf16() + u" Desktop/"_q + AppName.utf16() + u".lnk"_q;
+	const auto old = AppNameOld.utf16() + u"/"_q + AppName.utf16() + u".lnk"_q;
 	return validateShortcutAt(path + installed)
 		|| validateShortcutAt(path + old);
 }
@@ -358,7 +359,7 @@ bool ValidateShortcut() {
 	}
 
 	if (cAlphaVersion()) {
-		path += u"TestgramAlpha.lnk"_q;
+		path += AppName.utf16() + u"Alpha.lnk"_q;
 		if (validateShortcutAt(path)) {
 			return true;
 		}
@@ -367,7 +368,7 @@ bool ValidateShortcut() {
 			return true;
 		}
 
-		path += u"Testgram.lnk"_q;
+		path += AppName.utf16() + u".lnk"_q;
 		if (validateShortcutAt(path)) {
 			return true;
 		}

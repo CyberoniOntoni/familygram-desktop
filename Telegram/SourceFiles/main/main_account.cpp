@@ -7,6 +7,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "main/main_account.h"
 
+#include "core/familygram_server.h"
 #include "base/platform/base_platform_info.h"
 #include "core/application.h"
 #include "storage/storage_account.h"
@@ -422,6 +423,8 @@ void Account::startMtp(std::unique_ptr<MTP::Config> config) {
 	_mtp = std::make_unique<MTP::Instance>(
 		MTP::Instance::Mode::Normal,
 		std::move(fields));
+
+	FamilyGram::EnsureBootstrapDcOptions(&_mtp->dcOptions());
 
 	const auto writingKeys = _mtp->lifetime().make_state<bool>(false);
 	_mtp->writeKeysRequests(

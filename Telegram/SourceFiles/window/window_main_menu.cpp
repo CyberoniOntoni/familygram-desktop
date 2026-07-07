@@ -17,6 +17,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "calls/calls_box_controller.h"
 #include "calls/calls_instance.h"
 #include "core/application.h"
+#include "core/version.h"
 #include "core/click_handler_types.h"
 #include "data/data_changes.h"
 #include "data/data_document_media.h"
@@ -384,7 +385,7 @@ MainMenu::MainMenu(
 	parentResized();
 
 	_telegram->setMarkedText(tr::link(
-		u"Testgram Desktop"_q,
+		AppName.utf16() + u" Desktop"_q,
 		u"https://testgramdesktop.xie.su"_q));
 	_telegram->setLinksTrusted();
 	_version->setMarkedText(

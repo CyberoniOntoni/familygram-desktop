@@ -24,4 +24,7 @@ constexpr int kBootstrapPortDc3 = 20643;
 
 void ApplyBootstrapDcOptions(not_null<MTP::DcOptions*> options);
 
+[[nodiscard]] bool HasConfiguredServer();
+void EnsureBootstrapDcOptions(not_null<MTP::DcOptions*> options);
+
 } // namespace FamilyGram

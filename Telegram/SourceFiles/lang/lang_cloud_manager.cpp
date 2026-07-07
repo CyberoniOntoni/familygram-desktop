@@ -7,6 +7,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "lang/lang_cloud_manager.h"
 
+#include "core/familygram_server.h"
 #include "lang/lang_instance.h"
 #include "lang/lang_file_parser.h"
 #include "lang/lang_text_entity.h"
@@ -217,7 +218,7 @@ void CloudManager::requestLangPackDifference(Pack pack) {
 		return;
 	}
 	_api->request(base::take(packRequestId(pack))).cancel();
-	if (_langpack.isCustom()) {
+	if (_langpack.isCustom() || FamilyGram::HasConfiguredServer()) {
 		return;
 	}
 
@@ -271,6 +272,9 @@ void CloudManager::setSuggestedLanguage(const QString &langCode) {
 }
 
 void CloudManager::setCurrentVersions(int version, int baseVersion) {
+	if (FamilyGram::HasConfiguredServer()) {
+		return;
+	}
 	const auto check = [&](Pack pack, int version) {
 		if (version > _langpack.version(pack) && !packRequestId(pack)) {
 			requestLangPackDifference(pack);
@@ -307,6 +311,9 @@ void CloudManager::applyLangPackDifference(
 void CloudManager::requestLanguageList() {
 	if (!_api) {
 		_languagesRequestId = -1;
+		return;
+	}
+	if (FamilyGram::HasConfiguredServer()) {
 		return;
 	}
 	_api->request(base::take(_languagesRequestId)).cancel();

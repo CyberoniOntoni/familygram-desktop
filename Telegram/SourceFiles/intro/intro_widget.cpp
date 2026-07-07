@@ -7,6 +7,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "intro/intro_widget.h"
 
+#include "core/familygram_server.h"
 #include "intro/intro_start.h"
 #include "intro/intro_server.h"
 #include "intro/intro_phone.h"
@@ -108,6 +109,7 @@ Widget::Widget(
 		getData()->afterServer = point;
 		appendStep(new ServerWidget(this, _account, getData()));
 	} else {
+		FamilyGram::EnsureBootstrapDcOptions(&_account->mtp().dcOptions());
 		switch (point) {
 		case EnterPoint::Start:
 			getNearestDC();
@@ -273,7 +275,8 @@ void Widget::handleUpdate(const MTPUpdate &update) {
 
 void Widget::createLanguageLink() {
 	if (_changeLanguage
-		|| Core::App().domain().maybeLastOrSomeAuthedAccount()) {
+		|| Core::App().domain().maybeLastOrSomeAuthedAccount()
+		|| FamilyGram::HasConfiguredServer()) {
 		return;
 	}
 
