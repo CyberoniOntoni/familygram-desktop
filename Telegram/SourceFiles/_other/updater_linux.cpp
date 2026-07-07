@@ -399,7 +399,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	if (exeName.empty() || exeName.find('/') != string::npos) {
-		exeName = "Telegram";
+		exeName = "Familygram";
 	}
 	openLog();
 

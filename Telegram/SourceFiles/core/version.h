@@ -21,7 +21,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 constexpr auto AppId = "{53F49750-6209-4FBF-9CA8-7A333C87D1ED}"_cs;
 constexpr auto AppNameOld = "Telegram Win (Unofficial)"_cs;
 constexpr auto AppName = "FamilyGram"_cs;
-constexpr auto AppFile = "Telegram"_cs;
+constexpr auto AppFile = "Familygram"_cs;
 constexpr auto AppVersion = 6007008;
 constexpr auto AppVersionStr = "6.7.8";
 constexpr auto AppBetaVersion = false;
