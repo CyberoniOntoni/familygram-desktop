@@ -18,7 +18,7 @@
 	url = https://github.com/desktop-app/lib_rpl.git
 [submodule "Telegram/lib_base"]
 	path = Telegram/lib_base
-	url = https://github.com/desktop-app/lib_base.git
+	url = https://github.com/CyberoniOntoni/lib_base.git
 [submodule "Telegram/codegen"]
 	path = Telegram/codegen
 	url = https://github.com/CyberoniOntoni/codegen.git
@@ -33,7 +33,7 @@
 	url = https://github.com/desktop-app/lib_tl.git
 [submodule "Telegram/lib_spellcheck"]
 	path = Telegram/lib_spellcheck
-	url = https://github.com/desktop-app/lib_spellcheck
+	url = https://github.com/CyberoniOntoni/lib_spellcheck.git
 [submodule "Telegram/lib_storage"]
 	path = Telegram/lib_storage
 	url = https://github.com/desktop-app/lib_storage.git
