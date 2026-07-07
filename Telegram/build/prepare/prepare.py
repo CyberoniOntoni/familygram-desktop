@@ -59,6 +59,7 @@ usedPrefix = os.path.realpath(os.path.join(libsDir, 'local'))
 
 optionsList = [
     'qt6',
+    'skip-qt',
     'skip-release',
     'build-stackwalk',
 ]
@@ -389,6 +390,8 @@ def runStages():
     for stage in stages:
         if len(onlyStages) > 0 and not stage['name'] in onlyStages:
             continue
+        if 'skip-qt' in options and stage['name'].startswith('qt_'):
+            continue
         index = index + 1
         version = ('#' + str(stage['version'])) if (stage['version'] != '0') else ''
         prefix = '[' + str(index) + '/' + str(count) + '](' + stage['location'] + '/' + stage['name'] + version + ')'
@@ -463,10 +466,7 @@ stage('patches', """
     cd patches
     git checkout 4519c85c924b9da81f29d4aac045886f896ee479
 win:
-    python -c "import pathlib,re; p=pathlib.Path('build_libvpx_win.sh'); t=p.read_text(); s='find . -name \\'*.vcxproj\\''; patch='''--size-limit=4096x4096
-
-'''+s+\" -exec sed -i 's/<PlatformToolset>v143<\\/PlatformToolset>/<PlatformToolset>v145<\\/PlatformToolset>/g' {} +\\nsed -i 's/-p:Platform=\\\"\\\\\\$platform\\\"/-p:Platform=\\\"\\\\\\$platform\\\" -p:PlatformToolset=v145/g' build/make/gen_msvs_sln.sh\\n\\nmake\"; t=re.sub(r'--size-limit=4096x4096\\r?\\n\\r?\\nmake', patch, t, count=1) if s not in t else t; p.write_text(t)"
-""")
+    python """ + '"' + os.path.join(scriptPath, 'patch_libvpx_toolset.py') + '"')
 
 stage('msys64', """
 win:

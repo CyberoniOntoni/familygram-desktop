@@ -34,6 +34,13 @@ class SlideAnimation;
 } // namespace Window
 
 namespace Intro {
+
+enum class EnterPoint : uchar {
+	Start,
+	Phone,
+	Qr,
+};
+
 namespace details {
 
 enum class CallStatus {
@@ -92,12 +99,6 @@ enum class Animate {
 class Step;
 
 } // namespace details
-
-enum class EnterPoint : uchar {
-	Start,
-	Phone,
-	Qr,
-};
 
 class Widget
 	: public Ui::RpWidget

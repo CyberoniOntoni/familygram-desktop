@@ -11,7 +11,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "mtproto/mtproto_dc_options.h"
 #include "logs.h"
 
-#include <QtCore/QHostAddress>
+#include <QtNetwork/QHostAddress>
 #include <QtCore/QRegularExpression>
 
 namespace FamilyGram {

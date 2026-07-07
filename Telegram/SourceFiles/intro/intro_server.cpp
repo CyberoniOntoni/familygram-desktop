@@ -13,6 +13,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "intro/intro_widget.h"
 #include "core/familygram_server.h"
 #include "storage/localstorage.h"
+#include "mtproto/mtproto_dc_options.h"
 #include "main/main_account.h"
 #include "ui/widgets/fields/input_field.h"
 #include "styles/style_intro.h"
@@ -78,8 +79,8 @@ void ServerWidget::connectToServer(const QString &host) {
 			return;
 		}
 		account().mtp().dcOptions().setFromList(data.vdc_options());
-		if (const auto widget = weak.data()) {
-			if (const auto intro = qobject_cast<Intro::Widget*>(
+		if (const auto widget = weak.get()) {
+			if (const auto intro = static_cast<Intro::Widget*>(
 					widget->parentWidget())) {
 				intro->requestNearestDc();
 			}

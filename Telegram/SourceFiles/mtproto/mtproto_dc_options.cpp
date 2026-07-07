@@ -11,8 +11,9 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "mtproto/details/mtproto_rsa_public_key.h"
 #include "mtproto/facade.h"
 #include "mtproto/connection_tcp.h"
-#include "storage/localstorage.h"
 #include "storage/serialize_common.h"
+
+#include <QtCore/QString>
 
 #include <QtCore/QFile>
 #include <QtCore/QRegularExpression>
@@ -30,8 +31,13 @@ struct BuiltInDc {
 	int port;
 };
 
+QString &FamilyGramBootstrapHostCache() {
+	static auto result = QString();
+	return result;
+}
+
 [[nodiscard]] std::string BootstrapServerHost() {
-	const auto host = Local::readFamilyGramServerHost();
+	const auto &host = FamilyGramBootstrapHostCache();
 	return host.isEmpty() ? "127.0.0.1" : host.toStdString();
 }
 
@@ -61,6 +67,10 @@ v5FarscM2fC5iWQ2eP1y6jXR64sGU3QjncvozYOePrH9jGcnmzUmj42x/H28IjJQ\n\
 -----END RSA PUBLIC KEY-----" };
 
 } // namespace
+
+void SetFamilyGramBootstrapHost(const QString &host) {
+	FamilyGramBootstrapHostCache() = host.trimmed().toLower();
+}
 
 class DcOptions::WriteLocker {
 public:

@@ -35,7 +35,7 @@ protected:
 private:
 	void connectToServer(const QString &host);
 
-	const not_null<Ui::InputField*> _host;
+	object_ptr<Ui::InputField> _host;
 	mtpRequestId _requestId = 0;
 	rpl::event_stream<> _setFocus;
 

@@ -603,6 +603,7 @@ void writeFamilyGramServerHost(const QString &host) {
 		return;
 	}
 	FamilyGramServerHostCache() = normalized;
+	MTP::SetFamilyGramBootstrapHost(normalized);
 	QFile f(familyGramServerHostFile());
 	if (f.open(QIODevice::WriteOnly)) {
 		f.write(normalized.toUtf8());
@@ -619,6 +620,7 @@ QString readFamilyGramServerHost() {
 	if (f.open(QIODevice::ReadOnly)) {
 		cached = QString::fromUtf8(f.readAll()).trimmed().toLower();
 	}
+	MTP::SetFamilyGramBootstrapHost(cached);
 	return cached;
 }
 

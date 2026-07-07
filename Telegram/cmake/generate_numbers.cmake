@@ -14,15 +14,18 @@ function(generate_numbers target_name numbers_file)
         ${gen_dst}/numbers.h
     )
 
+    desktop_app_prepare_codegen_command(_codegen_command
+        codegen_numbers
+        -o${gen_dst}
+        ${numbers_file}
+    )
     add_custom_command(
     OUTPUT
         ${gen_timestamp}
     BYPRODUCTS
         ${gen_files}
     COMMAND
-        codegen_numbers
-        -o${gen_dst}
-        ${numbers_file}
+        ${_codegen_command}
     COMMENT "Generating numbers (${target_name})"
     DEPENDS
         codegen_numbers

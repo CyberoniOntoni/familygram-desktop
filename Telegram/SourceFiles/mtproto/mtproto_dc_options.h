@@ -32,6 +32,8 @@ enum class Environment : uchar {
 	Test,
 };
 
+void SetFamilyGramBootstrapHost(const QString &host);
+
 class DcOptions {
 public:
 	using Flag = MTPDdcOption::Flag;

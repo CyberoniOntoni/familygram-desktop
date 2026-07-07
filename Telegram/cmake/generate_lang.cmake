@@ -14,15 +14,18 @@ function(generate_lang target_name lang_file)
         ${gen_dst}/lang_auto.h
     )
 
+    desktop_app_prepare_codegen_command(_codegen_command
+        codegen_lang
+        -o${gen_dst}
+        ${lang_file}
+    )
     add_custom_command(
     OUTPUT
         ${gen_timestamp}
     BYPRODUCTS
         ${gen_files}
     COMMAND
-        codegen_lang
-        -o${gen_dst}
-        ${lang_file}
+        ${_codegen_command}
     COMMENT "Generating lang (${target_name})"
     DEPENDS
         codegen_lang

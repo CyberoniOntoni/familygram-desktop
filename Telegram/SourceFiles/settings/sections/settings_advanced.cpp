@@ -140,8 +140,8 @@ void FamilyGramServerBox(
 		}
 		const auto save = [=](Fn<void()> close) {
 			Local::writeFamilyGramServerHost(host);
-			for (const auto &[index, entry] : Core::App().domain().accounts()) {
-				const auto account = entry.account.get();
+			for (const auto &[index, accountUnique] : Core::App().domain().accounts()) {
+				const auto account = accountUnique.get();
 				FamilyGram::ApplyBootstrapDcOptions(&account->mtp().dcOptions());
 				account->mtp().restart();
 				if (account->sessionExists()) {
