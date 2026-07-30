@@ -47,6 +47,7 @@ jobs:
     runs-on: ${{ matrix.arch == 'arm64' && 'windows-11-arm' || 'windows-latest' }}
 
     strategy:
+      fail-fast: false
       matrix:
         arch: [x64_x86, x64, arm64]
         qt: ["", qt6]
@@ -101,11 +102,15 @@ jobs:
           git config --global user.email "you@example.com"
           git config --global user.name "Sample"
 
+      # windows-latest currently ships VS 18 (2026). GYP must not be pinned to a
+      # missing VS 2022 install path (that broke Libraries/breakpad with
+      # "vcvarsall.bat is missing").
       - uses: ilammy/msvc-dev-cmd@v1.13.0
         name: Native Tools Command Prompt.
         with:
           arch: ${{ matrix.arch }}
           sdk: ${{ env.SDK }}
+          toolset: '14.44'
 
       - name: NuGet sources.
         run: |
@@ -145,7 +150,9 @@ jobs:
 
       - name: Libraries.
         env:
-          GYP_MSVS_OVERRIDE_PATH: 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\'
+          # Point GYP at the VS install actually present on the runner (VS 18).
+          # Leave VERSION as 2022 so desktop-app/gyp still recognizes the layout.
+          GYP_MSVS_OVERRIDE_PATH: 'C:\Program Files\Microsoft Visual Studio\18\Enterprise\'
           GYP_MSVS_VERSION: 2022
         run: |
           %TBUILD%\%REPO_NAME%\Telegram\build\prepare\win.bat skip-release silent ${{ matrix.qt }}
