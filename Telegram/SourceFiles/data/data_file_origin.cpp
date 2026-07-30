@@ -184,6 +184,8 @@ struct FileReferenceAccumulator {
 			push(data.vchat_photo());
 		}, [&](const MTPDchannelFull &data) {
 			push(data.vchat_photo());
+		}, [&](const MTPDcommunityFull &data) {
+			push(data.vchat_photo()); // Photo, not ChatPhoto
 		});
 	}
 	void push(const MTPmessages_ChatFull &data) {

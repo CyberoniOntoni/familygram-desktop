@@ -1234,6 +1234,18 @@ Chat ParseChat(const MTPChat &data) {
 		result.input = MTP_inputPeerChannel(
 			MTP_long(result.bareId),
 			data.vaccess_hash());
+	}, [&](const MTPDcommunity &data) {
+		result.bareId = data.vid().v;
+		result.title = ParseString(data.vtitle());
+		result.input = MTP_inputPeerChannel(
+			MTP_long(result.bareId),
+			MTP_long(data.vaccess_hash().value_or_empty()));
+	}, [&](const MTPDcommunityForbidden &data) {
+		result.bareId = data.vid().v;
+		result.title = ParseString(data.vtitle());
+		result.input = MTP_inputPeerChannel(
+			MTP_long(result.bareId),
+			MTP_long(data.vaccess_hash().value_or_empty()));
 	});
 	return result;
 }

@@ -179,6 +179,7 @@ MTPMessage PrepareLogMessage(const MTPMessage &message, TimeId newDate) {
 			data.vfwd_from() ? *data.vfwd_from() : MTPMessageFwdHeader(),
 			MTP_long(data.vvia_bot_id().value_or_empty()),
 			MTP_long(data.vvia_business_bot_id().value_or_empty()),
+			data.vguestchat_via_from() ? *data.vguestchat_via_from() : MTPPeer(),
 			reply.value_or(MTPMessageReplyHeader()),
 			MTP_int(newDate),
 			data.vmessage(),
@@ -203,7 +204,8 @@ MTPMessage PrepareLogMessage(const MTPMessage &message, TimeId newDate) {
 			MTP_long(data.vpaid_message_stars().value_or_empty()),
 			MTPSuggestedPost(),
 			MTPint(), // schedule_repeat_period
-			MTPstring()); // summary_from_language
+			MTPstring(), // summary_from_language
+			MTPRichMessage()); // summary_from_language
 	});
 }
 

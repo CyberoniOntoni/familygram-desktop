@@ -77,6 +77,7 @@ constexpr auto kRequestTimeLimit = 60 * crl::time(1000);
 			data.vfwd_from() ? *data.vfwd_from() : MTPMessageFwdHeader(),
 			MTP_long(data.vvia_bot_id().value_or_empty()),
 			MTP_long(data.vvia_business_bot_id().value_or_empty()),
+			data.vguestchat_via_from() ? *data.vguestchat_via_from() : MTPPeer(),
 			data.vreply_to() ? *data.vreply_to() : MTPMessageReplyHeader(),
 			data.vdate(),
 			data.vmessage(),
@@ -103,7 +104,8 @@ constexpr auto kRequestTimeLimit = 60 * crl::time(1000);
 				? *data.vsuggested_post()
 				: MTPSuggestedPost()),
 			MTP_int(data.vschedule_repeat_period().value_or_empty()),
-			MTP_string(qs(data.vsummary_from_language().value_or_empty())));
+			MTP_string(qs(data.vsummary_from_language().value_or_empty())),
+		MTPRichMessage());
 	});
 }
 
@@ -282,7 +284,8 @@ void ScheduledMessages::sendNowSimpleMessage(
 			MTPlong(), // paid_message_stars
 			MTPSuggestedPost(),
 			MTPint(), // schedule_repeat_period
-			MTPstring()), // summary_from_language
+			MTPstring(), // summary_from_language
+			MTPRichMessage()), // summary_from_language
 		localFlags,
 		NewMessageType::Unread);
 

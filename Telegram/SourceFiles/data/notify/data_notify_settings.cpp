@@ -116,6 +116,8 @@ void NotifySettings::apply(
 		apply(peerFromMTP(data.vpeer()), settings);
 	}, [&](const MTPDnotifyForumTopic &data) {
 		apply(peerFromMTP(data.vpeer()), data.vtop_msg_id().v, settings);
+	}, [&](const MTPDnotifyCommunity &data) {
+		apply(peerFromChannel(data.vcommunity_id().v), settings);
 	});
 }
 
@@ -149,6 +151,13 @@ void NotifySettings::apply(
 		apply(peerFromInput(data.vpeer()), settings);
 	}, [&](const MTPDinputNotifyForumTopic &data) {
 		apply(peerFromInput(data.vpeer()), data.vtop_msg_id().v, settings);
+	}, [&](const MTPDinputNotifyCommunity &data) {
+		data.vcommunity().match([&](const MTPDinputChannel &c) {
+			apply(peerFromChannel(c.vchannel_id().v), settings);
+		}, [&](const MTPDinputChannelFromMessage &c) {
+			apply(peerFromChannel(c.vchannel_id().v), settings);
+		}, [](const MTPDinputChannelEmpty &) {
+		});
 	});
 }
 

@@ -186,6 +186,7 @@ AdminLog::OwnedItem GenerateForwardedItem(
 			MTPstring()), // psa_type
 		MTPlong(), // via_bot_id
 		MTPlong(), // via_business_bot_id
+		MTPPeer(), // guestchat_via_from
 		MTPMessageReplyHeader(),
 		MTP_int(base::unixtime::now()), // date
 		MTP_string(text),
@@ -208,7 +209,8 @@ AdminLog::OwnedItem GenerateForwardedItem(
 		MTPlong(), // paid_message_stars
 		MTPSuggestedPost(),
 		MTPint(), // schedule_repeat_period
-		MTPstring() // summary_from_language
+		MTPstring(), // summary_from_language
+	)MTPRichMessage()
 	).match([&](const MTPDmessage &data) {
 		return history->makeMessage(
 			history->nextNonHistoryEntryId(),

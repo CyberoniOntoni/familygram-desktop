@@ -10,6 +10,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "api/api_authorizations.h"
 #include "api/api_attached_stickers.h"
 #include "api/api_blocked_peers.h"
+#include "api/api_chat_invite.h"
 #include "api/api_chat_links.h"
 #include "api/api_chat_participants.h"
 #include "api/api_cloud_password.h"
@@ -1184,21 +1185,29 @@ void ApiWrap::gotChatFull(
 	_session->data().processUsers(d.vusers());
 	_session->data().processChats(d.vchats());
 
-	d.vfull_chat().match([&](const MTPDchatFull &data) {
-		if (const auto chat = peer->asChat()) {
-			Data::ApplyChatUpdate(chat, data);
-		} else {
-			LOG(("MTP Error: bad type in gotChatFull for channel: %1"
-				).arg(d.vfull_chat().type()));
-		}
-	}, [&](const MTPDchannelFull &data) {
-		if (const auto channel = peer->asChannel()) {
-			Data::ApplyChannelUpdate(channel, data);
-		} else {
-			LOG(("MTP Error: bad type in gotChatFull for chat: %1"
-				).arg(d.vfull_chat().type()));
-		}
-	});
+		d.vfull_chat().match([&](const MTPDchatFull &data) {
+			if (const auto chat = peer->asChat()) {
+				Data::ApplyChatUpdate(chat, data);
+			} else {
+				LOG(("MTP Error: bad type in gotChatFull for channel: %1"
+					).arg(d.vfull_chat().type()));
+			}
+		}, [&](const MTPDchannelFull &data) {
+			if (const auto channel = peer->asChannel()) {
+				Data::ApplyChannelUpdate(channel, data);
+			} else {
+				LOG(("MTP Error: bad type in gotChatFull for chat: %1"
+					).arg(d.vfull_chat().type()));
+			}
+		}, [&](const MTPDcommunityFull &data) {
+			if (const auto channel = peer->asChannel()) {
+				// Minimal community full support until communities UI is ported.
+				channel->setAbout(qs(data.vabout()));
+			} else {
+				LOG(("MTP Error: bad type in gotChatFull for community: %1"
+					).arg(d.vfull_chat().type()));
+			}
+		});
 
 	_fullPeerRequests.remove(peer);
 	_session->changes().peerUpdated(
@@ -1756,14 +1765,20 @@ void ApiWrap::joinChannel(not_null<ChannelData*> channel) {
 	} else if (!_channelAmInRequests.contains(channel)) {
 		const auto requestId = request(MTPchannels_JoinChannel(
 			channel->inputChannel()
-		)).done([=](const MTPUpdates &result) {
+		)).done([=](const MTPmessages_ChatInviteJoinResult &result) {
 			_channelAmInRequests.remove(channel);
-			applyUpdates(result);
 
-			session().data().addRecentJoinChat({
-				.fromPeerId = channel->id,
-				.joinedPeerId = channel->id,
-			});
+			Api::ProcessChatInviteJoinResult(
+				_session,
+				ShowForPeer(channel),
+				result,
+				[=](const MTPUpdates &updates) {
+					applyUpdates(updates);
+					session().data().addRecentJoinChat({
+						.fromPeerId = channel->id,
+						.joinedPeerId = channel->id,
+					});
+				});
 		}).fail([=](const MTP::Error &error) {
 			const auto &type = error.type();
 
@@ -1843,6 +1858,8 @@ void ApiWrap::requestNotifySettings(const MTPInputNotifyPeer &peer) {
 			return true;
 		}
 		return false;
+	}, [&](const MTPDinputNotifyCommunity &) {
+		return false;
 	});
 	if (bad) {
 		return;
@@ -1878,6 +1895,14 @@ void ApiWrap::requestNotifySettings(const MTPInputNotifyPeer &peer) {
 			peerFromInput(data.vpeer()),
 			data.vtop_msg_id().v,
 		};
+	}, [&](const MTPDinputNotifyCommunity &data) {
+		return data.vcommunity().match([&](const MTPDinputChannel &c) {
+			return NotifySettingsKey{ peerFromChannel(c.vchannel_id()) };
+		}, [&](const MTPDinputChannelFromMessage &c) {
+			return NotifySettingsKey{ peerFromChannel(c.vchannel_id()) };
+		}, [](const MTPDinputChannelEmpty &) {
+			return NotifySettingsKey{ PeerId(0) };
+		});
 	});
 	if (_notifySettingRequests.contains(key)) {
 		return;

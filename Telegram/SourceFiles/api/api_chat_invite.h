@@ -13,11 +13,22 @@ namespace Main {
 class Session;
 } // namespace Main
 
+namespace Ui {
+class Show;
+} // namespace Ui
+
 namespace Window {
 class SessionController;
 } // namespace Window
 
 namespace Api {
+
+void ProcessChatInviteJoinResult(
+	not_null<Main::Session*> session,
+	std::shared_ptr<Ui::Show> show,
+	const MTPmessages_ChatInviteJoinResult &result,
+	Fn<void(const MTPUpdates &updates)> done,
+	base::weak_ptr<Window::SessionController> controller = nullptr);
 
 void CheckChatInvite(
 	not_null<Window::SessionController*> controller,

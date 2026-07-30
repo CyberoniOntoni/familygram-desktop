@@ -491,6 +491,18 @@ void Histories::applyPeerDialogs(const MTPmessages_PeerDialogs &dialogs) {
 		}, [&](const MTPDdialogFolder &data) {
 			const auto folder = _owner->processFolder(data.vfolder());
 			folder->applyDialog(data);
+		}, [&](const MTPDdialogCommunity &data) {
+			const auto channelId = ChannelId(data.vcommunity_id().v);
+			if (const auto channel = _owner->channelLoaded(channelId)) {
+				const auto history = _owner->history(channel);
+				_owner->notifySettings().apply(
+					peerFromChannel(channelId),
+					data.vnotify_settings());
+				_owner->setChatPinned(
+					history,
+					FilterId(),
+					data.is_pinned());
+			}
 		});
 	}
 	_owner->sendHistoryChangeNotifications();

@@ -962,6 +962,8 @@ void WebViewInstance::resolve() {
 		}
 	}, [&](WebViewSourceAgeVerification) {
 		requestMain();
+	}, [&](WebViewSourceJoinChat) {
+		requestMain();
 	});
 }
 

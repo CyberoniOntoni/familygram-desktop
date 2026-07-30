@@ -995,6 +995,9 @@ private:
 	void applyDialog(
 		Folder *requestFolder,
 		const MTPDdialogFolder &data);
+	void applyDialog(
+		Folder *requestFolder,
+		const MTPDdialogCommunity &data);
 
 	const Messages *messagesList(PeerId peerId) const;
 	not_null<Messages*> messagesListForInsert(PeerId peerId);

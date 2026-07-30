@@ -2799,8 +2799,10 @@ void Controller::saveRequestToJoin() {
 		return continueSave();
 	}
 	_api.request(MTPchannels_ToggleJoinRequest(
+		MTP_flags(0),
 		_peer->asChannel()->inputChannel(),
-		MTP_bool(*_savingData.requestToJoin)
+		MTP_bool(*_savingData.requestToJoin),
+		MTP_inputUserEmpty()
 	)).done([=](const MTPUpdates &result) {
 		_peer->session().api().applyUpdates(result);
 		continueSave();

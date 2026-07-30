@@ -173,6 +173,14 @@ struct WebViewSourceAgeVerification {
 	}
 };
 
+struct WebViewSourceJoinChat {
+	uint64 queryId = 0;
+
+	friend inline bool operator==(
+		const WebViewSourceJoinChat &,
+		const WebViewSourceJoinChat &) = default;
+};
+
 struct WebViewSource : std::variant<
 	WebViewSourceButton,
 	WebViewSourceSwitch,
@@ -184,7 +192,8 @@ struct WebViewSource : std::variant<
 	WebViewSourceBotMenu,
 	WebViewSourceGame,
 	WebViewSourceBotProfile,
-	WebViewSourceAgeVerification> {
+	WebViewSourceAgeVerification,
+	WebViewSourceJoinChat> {
 	using variant::variant;
 };
 

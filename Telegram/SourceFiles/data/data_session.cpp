@@ -825,6 +825,10 @@ not_null<PeerData*> Session::processChat(const MTPChat &data) {
 		return peer(peerFromChannel(data.vid().v));
 	}, [&](const MTPDchannelForbidden &data) {
 		return peer(peerFromChannel(data.vid().v));
+	}, [&](const MTPDcommunity &data) {
+		return peer(peerFromChannel(data.vid().v));
+	}, [&](const MTPDcommunityForbidden &data) {
+		return peer(peerFromChannel(data.vid().v));
 	});
 	auto minimal = false;
 
@@ -1147,6 +1151,53 @@ not_null<PeerData*> Session::processChat(const MTPChat &data) {
 			|| canAddMembers != channel->canAddMembers()) {
 			flags |= UpdateFlag::Rights;
 		}
+	}, [&](const MTPDcommunity &data) {
+		const auto channel = result->asChannel();
+		minimal = data.is_min();
+		if (const auto accessHash = data.vaccess_hash()) {
+			if (!minimal || !channel->accessHash()) {
+				channel->setAccessHash(accessHash->v);
+			}
+		}
+		if (const auto rights = data.vdefault_banned_rights()) {
+			channel->setDefaultRestrictions(
+				ChatRestrictionsInfo(*rights).flags);
+		} else {
+			channel->setDefaultRestrictions(ChatRestrictions());
+		}
+		if (!minimal) {
+			if (const auto rights = data.vadmin_rights()) {
+				channel->setAdminRights(ChatAdminRightsInfo(*rights).flags);
+			} else if (channel->hasAdminRights()) {
+				channel->setAdminRights(ChatAdminRights());
+			}
+			channel->date = data.vdate().v;
+			using Flag = ChannelDataFlag;
+			const auto flagsMask = Flag::Left | Flag::Creator | Flag::Forbidden;
+			const auto flagsSet = (data.is_left() ? Flag::Left : Flag())
+				| (data.is_creator() ? Flag::Creator : Flag());
+			channel->setFlags((channel->flags() & ~flagsMask) | flagsSet);
+		}
+		channel->setName(qs(data.vtitle()), QString());
+		channel->setPhoto(data.vphoto());
+	}, [&](const MTPDcommunityForbidden &data) {
+		const auto channel = result->asChannel();
+		using Flag = ChannelDataFlag;
+		const auto flagsMask = Flag::Forbidden;
+		channel->setFlags((channel->flags() & ~flagsMask) | Flag::Forbidden);
+		if (channel->hasAdminRights()) {
+			channel->setAdminRights(ChatAdminRights());
+		}
+		if (channel->hasRestrictions()) {
+			channel->setRestrictions(ChatRestrictionsInfo());
+		}
+		channel->setName(qs(data.vtitle()), QString());
+		if (const auto accessHash = data.vaccess_hash()) {
+			channel->setAccessHash(accessHash->v);
+		}
+		channel->setPhoto(MTP_chatPhotoEmpty());
+		channel->date = 0;
+		channel->setMembersCount(0);
 	}, [](const MTPDchatEmpty &) {
 	});
 
@@ -2473,6 +2524,7 @@ void Session::applyPinnedChats(
 			if (folder) {
 				LOG(("API Error: Nested folders detected."));
 			}
+		}, [](const MTPDdialogPeerCommunity &) {
 		});
 	}
 	chatsList(folder)->pinned()->applyList(this, list);
@@ -2534,6 +2586,20 @@ void Session::applyDialog(
 	const auto folder = processFolder(data.vfolder());
 	folder->applyDialog(data);
 	setPinnedFromEntryList(folder, data.is_pinned());
+}
+
+void Session::applyDialog(
+		Data::Folder *requestFolder,
+		const MTPDdialogCommunity &data) {
+	// Communities UI not fully ported; keep layer 228 wire compatible.
+	const auto channelId = ChannelId(data.vcommunity_id().v);
+	if (const auto channel = channelLoaded(channelId)) {
+		const auto history = this->history(channel);
+		notifySettings().apply(
+			peerFromChannel(channelId),
+			data.vnotify_settings());
+		setPinnedFromEntryList(history, data.is_pinned());
+	}
 }
 
 bool Session::pinnedCanPin(not_null<Dialogs::Entry*> entry) const {
@@ -5277,6 +5343,7 @@ void Session::serviceNotification(
 			MTPPeerColor(), // profile_color
 			MTPint(), // bot_active_users
 			MTPlong(), // bot_verification_icon
+			MTPlong(), // send_paid_messages_stars
 			MTPlong())); // send_paid_messages_stars
 	}
 	const auto history = this->history(PeerData::kServiceNotificationsId);
@@ -5319,6 +5386,7 @@ void Session::insertCheckedServiceNotification(
 				MTPMessageFwdHeader(),
 				MTPlong(), // via_bot_id
 				MTPlong(), // via_business_bot_id
+				MTPPeer(), // guestchat_via_from
 				MTPMessageReplyHeader(),
 				MTP_int(date),
 				MTP_string(sending.text),
@@ -5341,7 +5409,8 @@ void Session::insertCheckedServiceNotification(
 				MTPlong(), // paid_message_stars
 				MTPSuggestedPost(),
 				MTPint(), // schedule_repeat_period
-				MTPstring()), // summary_from_language
+				MTPstring(), // summary_from_language
+				MTPRichMessage()), // summary_from_language
 			localFlags,
 			NewMessageType::Unread);
 	}

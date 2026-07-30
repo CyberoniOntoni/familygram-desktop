@@ -97,6 +97,11 @@ void PinnedList::applyList(
 			}
 		}, [&](const MTPDdialogPeerFolder &data) {
 			addPinned(owner->folder(data.vfolder_id().v));
+		}, [&](const MTPDdialogPeerCommunity &data) {
+			if (const auto channel = owner->channelLoaded(
+					ChannelId(data.vcommunity_id().v))) {
+				addPinned(owner->history(channel));
+			}
 		});
 	}
 }
@@ -114,6 +119,7 @@ void PinnedList::applyList(
 				addPinned(sublistsOwner->sublist(peer));
 			}
 		}, [](const MTPDdialogPeerFolder &data) {
+		}, [](const MTPDdialogPeerCommunity &) {
 		});
 	}
 }
