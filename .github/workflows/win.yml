@@ -49,13 +49,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # FamilyGram: x86/x64 Windows only (no ARM CI).
-        arch: [x64_x86, x64]
-        qt: ["", qt6]
+        # FamilyGram: 64-bit Windows + Qt 6 only (no ARM, no Qt 5 prepare).
+        arch: [x64]
+        qt: [qt6]
         generator: ["", "Ninja Multi-Config"]
-        exclude:
-          - arch: x64_x86
-            qt: qt6
 
     env:
       UPLOAD_ARTIFACT: "true"
