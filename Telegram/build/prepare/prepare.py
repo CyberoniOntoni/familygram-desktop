@@ -99,27 +99,24 @@ environment = {
     'LIBS_DIR': libsDir,
     'THIRDPARTY_DIR': thirdPartyDir,
     'PATH_PREFIX': pathPrefix,
+    # Match tdesktop + GitHub-hosted runners (VS 2022). Forcing VS 2026 / v145
+    # breaks Actions where only v143 toolset is installed.
+    'CMAKE_GENERATOR': 'Ninja Multi-Config',
 }
 if (win32):
     environment.update({
         'SPECIAL_TARGET': 'win',
         'X8664': 'x86',
-        'CMAKE_GENERATOR': 'Visual Studio 18 2026',
-        'CMAKE_GENERATOR_PLATFORM': 'Win32',
     })
 elif (win64):
     environment.update({
         'SPECIAL_TARGET': 'win64',
         'X8664': 'x64',
-        'CMAKE_GENERATOR': 'Visual Studio 18 2026',
-        'CMAKE_GENERATOR_PLATFORM': 'x64',
     })
 elif (winarm):
     environment.update({
         'SPECIAL_TARGET': 'winarm',
         'X8664': 'ARM64',
-        'CMAKE_GENERATOR': 'Visual Studio 18 2026',
-        'CMAKE_GENERATOR_PLATFORM': 'ARM64',
     })
 elif (mac):
     environment.update({
@@ -527,9 +524,9 @@ stage('lzma', """
 win:
     git clone https://github.com/desktop-app/lzma.git
     cd lzma\\C\\Util\\LzmaLib
-    msbuild -m LzmaLib.sln /property:Configuration=Debug /property:Platform="$X8664" /p:PlatformToolset=v145
+    msbuild -m LzmaLib.sln /property:Configuration=Debug /property:Platform="$X8664"
 release:
-    msbuild -m LzmaLib.sln /property:Configuration=Release /property:Platform="$X8664" /p:PlatformToolset=v145
+    msbuild -m LzmaLib.sln /property:Configuration=Release /property:Platform="$X8664"
 """)
 
 stage('xz', """
@@ -1412,7 +1409,7 @@ release:
     ninja -C out/Release%FolderPostfix% common crash_generation_client exception_handler
     cd tools\\windows\\dump_syms
     gyp dump_syms.gyp --format=msvs
-    msbuild -m dump_syms.vcxproj /property:Configuration=Release /property:Platform="x64" /p:PlatformToolset=v145
+    msbuild -m dump_syms.vcxproj /property:Configuration=Release /property:Platform="x64"
 win:
     deactivate
 mac:
