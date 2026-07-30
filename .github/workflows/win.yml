@@ -44,17 +44,16 @@ jobs:
 
   windows:
     name: Windows
-    runs-on: ${{ matrix.arch == 'arm64' && 'windows-11-arm' || 'windows-latest' }}
+    runs-on: windows-latest
 
     strategy:
       fail-fast: false
       matrix:
-        arch: [x64_x86, x64, arm64]
+        # FamilyGram: x86/x64 Windows only (no ARM CI).
+        arch: [x64_x86, x64]
         qt: ["", qt6]
         generator: ["", "Ninja Multi-Config"]
         exclude:
-          - arch: arm64
-            qt: ""
           - arch: x64_x86
             qt: qt6
 
@@ -166,7 +165,6 @@ jobs:
           if [ -n "${{ matrix.arch }}" ]; then
             case "${{ matrix.arch }}" in
               x64_x86) ARCH="x86";;
-              arm64) ARCH="arm";;
               *) ARCH="${{ matrix.arch }}";;
             esac
             echo "Architecture from matrix: $ARCH"
