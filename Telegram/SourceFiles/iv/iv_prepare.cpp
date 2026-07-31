@@ -129,6 +129,15 @@ private:
 	[[nodiscard]] QByteArray block(
 		const MTPDpageBlockRelatedArticles &data);
 	[[nodiscard]] QByteArray block(const MTPDpageBlockMap &data);
+	[[nodiscard]] QByteArray block(const MTPDpageBlockHeading1 &data);
+	[[nodiscard]] QByteArray block(const MTPDpageBlockHeading2 &data);
+	[[nodiscard]] QByteArray block(const MTPDpageBlockHeading3 &data);
+	[[nodiscard]] QByteArray block(const MTPDpageBlockHeading4 &data);
+	[[nodiscard]] QByteArray block(const MTPDpageBlockHeading5 &data);
+	[[nodiscard]] QByteArray block(const MTPDpageBlockHeading6 &data);
+	[[nodiscard]] QByteArray block(const MTPDpageBlockMath &data);
+	[[nodiscard]] QByteArray block(const MTPDpageBlockThinking &data);
+	[[nodiscard]] QByteArray block(const MTPDpageBlockBlockquoteBlocks &data);
 
 	[[nodiscard]] QByteArray block(const MTPDpageRelatedArticle &data);
 
@@ -817,7 +826,17 @@ QByteArray Parser::block(const MTPDpageBlockTable &data) {
 }
 
 QByteArray Parser::block(const MTPDpageBlockOrderedList &data) {
-	return tag("ol", list(data.vitems()));
+	auto attributes = Attributes();
+	if (data.is_reversed()) {
+		attributes.push_back({ "reversed", std::nullopt });
+	}
+	if (const auto start = data.vstart()) {
+		attributes.push_back({ "start", Number(start->v) });
+	}
+	if (const auto type = data.vtype()) {
+		attributes.push_back({ "type", utf(*type) });
+	}
+	return tag("ol", attributes, list(data.vitems()));
 }
 
 QByteArray Parser::block(const MTPDpageBlockDetails &data) {
@@ -857,6 +876,55 @@ QByteArray Parser::block(const MTPDpageBlockMap &data) {
 	return tag("figure", tag("img", {
 		{ "src", mapUrl(geo, width, height, data.vzoom().v) },
 	}) + caption(data.vcaption()));
+}
+
+QByteArray Parser::block(const MTPDpageBlockHeading1 &data) {
+	return tag("h1", { { "dir", "auto" } }, rich(data.vtext()));
+}
+
+QByteArray Parser::block(const MTPDpageBlockHeading2 &data) {
+	return tag("h2", { { "dir", "auto" } }, rich(data.vtext()));
+}
+
+QByteArray Parser::block(const MTPDpageBlockHeading3 &data) {
+	return tag("h3", { { "dir", "auto" } }, rich(data.vtext()));
+}
+
+QByteArray Parser::block(const MTPDpageBlockHeading4 &data) {
+	return tag("h4", { { "dir", "auto" } }, rich(data.vtext()));
+}
+
+QByteArray Parser::block(const MTPDpageBlockHeading5 &data) {
+	return tag("h5", { { "dir", "auto" } }, rich(data.vtext()));
+}
+
+QByteArray Parser::block(const MTPDpageBlockHeading6 &data) {
+	return tag("h6", { { "dir", "auto" } }, rich(data.vtext()));
+}
+
+QByteArray Parser::block(const MTPDpageBlockMath &data) {
+	return tag("pre", {
+		{ "class", "math" },
+		{ "dir", "auto" },
+	}, utf(data.vsource()));
+}
+
+QByteArray Parser::block(const MTPDpageBlockThinking &data) {
+	return tag("div", {
+		{ "class", "thinking" },
+		{ "dir", "auto" },
+	}, rich(data.vtext()));
+}
+
+QByteArray Parser::block(const MTPDpageBlockBlockquoteBlocks &data) {
+	const auto caption = rich(data.vcaption());
+	const auto cite = caption.isEmpty()
+		? QByteArray()
+		: tag("cite", { { "dir", "auto" } }, caption);
+	return tag(
+		"blockquote",
+		{ { "dir", "auto" } },
+		list(data.vblocks()) + cite);
 }
 
 QByteArray Parser::block(const MTPDpageRelatedArticle &data) {
@@ -950,17 +1018,23 @@ QByteArray Parser::block(const MTPDpageListItemBlocks &data) {
 }
 
 QByteArray Parser::block(const MTPDpageListOrderedItemText &data) {
-	return tag(
-		"li",
-		{ { "value", utf(data.vnum()) }, { "dir", "auto" } },
-		rich(data.vtext()));
+	auto attributes = Attributes{ { "dir", "auto" } };
+	if (const auto num = data.vnum()) {
+		attributes.push_back({ "value", utf(*num) });
+	} else if (const auto value = data.vvalue()) {
+		attributes.push_back({ "value", Number(value->v) });
+	}
+	return tag("li", attributes, rich(data.vtext()));
 }
 
 QByteArray Parser::block(const MTPDpageListOrderedItemBlocks &data) {
-	return tag(
-		"li",
-		{ { "value", utf(data.vnum()) } },
-		list(data.vblocks()));
+	auto attributes = Attributes();
+	if (const auto num = data.vnum()) {
+		attributes.push_back({ "value", utf(*num) });
+	} else if (const auto value = data.vvalue()) {
+		attributes.push_back({ "value", Number(value->v) });
+	}
+	return tag("li", attributes, list(data.vblocks()));
 }
 
 QByteArray Parser::utf(const MTPstring &text) {
