@@ -462,8 +462,7 @@ stage('patches', """
     git clone https://github.com/desktop-app/patches.git
     cd patches
     git checkout 4519c85c924b9da81f29d4aac045886f896ee479
-win:
-    python """ + '"' + os.path.join(scriptPath, 'patch_libvpx_toolset.py') + '"')
+""")
 
 stage('msys64', """
 win:
@@ -1090,6 +1089,18 @@ winarm:
 win:
 depends:patches/build_libvpx_win.sh
     bash --login ../patches/build_libvpx_win.sh
+    if not exist "%USED_PREFIX%\\lib\\x64\\vpxmt.lib" if exist "x64\\Release\\vpxmt.lib" (
+        if not exist "%USED_PREFIX%\\lib\\x64" mkdir "%USED_PREFIX%\\lib\\x64"
+        copy /Y "x64\\Release\\vpxmt.lib" "%USED_PREFIX%\\lib\\x64\\vpxmt.lib"
+    )
+    if not exist "%USED_PREFIX%\\lib\\Win32\\vpxmt.lib" if exist "Win32\\Release\\vpxmt.lib" (
+        if not exist "%USED_PREFIX%\\lib\\Win32" mkdir "%USED_PREFIX%\\lib\\Win32"
+        copy /Y "Win32\\Release\\vpxmt.lib" "%USED_PREFIX%\\lib\\Win32\\vpxmt.lib"
+    )
+    if not exist "%USED_PREFIX%\\lib\\x64\\vpxmt.lib" if not exist "%USED_PREFIX%\\lib\\Win32\\vpxmt.lib" (
+        echo ERROR: libvpx did not install vpxmt.lib into local\\lib
+        exit /b 1
+    )
 mac:
     find ../patches/libvpx -type f -print0 | sort -z | xargs -0 git apply
 
