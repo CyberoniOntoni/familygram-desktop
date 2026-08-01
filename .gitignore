@@ -75,3 +75,7 @@ settings.local.json
 /clean_run/
 *.local.md
 docs/BUILD.local.md
+
+# Local scheme codegen dump
+_scheme_out/
+
