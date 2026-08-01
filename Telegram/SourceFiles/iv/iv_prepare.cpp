@@ -129,6 +129,9 @@ private:
 	[[nodiscard]] QByteArray block(
 		const MTPDpageBlockRelatedArticles &data);
 	[[nodiscard]] QByteArray block(const MTPDpageBlockMap &data);
+	// inputPageBlockMap is incorrectly typed as PageBlock in the scheme;
+	// it is an Input* constructor and never appears in server page payloads.
+	[[nodiscard]] QByteArray block(const MTPDinputPageBlockMap &data);
 	[[nodiscard]] QByteArray block(const MTPDpageBlockHeading1 &data);
 	[[nodiscard]] QByteArray block(const MTPDpageBlockHeading2 &data);
 	[[nodiscard]] QByteArray block(const MTPDpageBlockHeading3 &data);
@@ -876,6 +879,10 @@ QByteArray Parser::block(const MTPDpageBlockMap &data) {
 	return tag("figure", tag("img", {
 		{ "src", mapUrl(geo, width, height, data.vzoom().v) },
 	}) + caption(data.vcaption()));
+}
+
+QByteArray Parser::block(const MTPDinputPageBlockMap &data) {
+	return QByteArray();
 }
 
 QByteArray Parser::block(const MTPDpageBlockHeading1 &data) {

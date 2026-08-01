@@ -772,6 +772,12 @@ QByteArray SerializeMessage(
 		pushActor();
 		pushAction("managed_bot_created");
 		pushBare("bot", wrapUserName(data.botId));
+	}, [&](const ActionChangeCommunity &data) {
+		pushActor();
+		pushAction("change_community");
+		if (data.communityId) {
+			push("community_id", peerFromChannel(*data.communityId));
+		}
 	}, [](v::null_t) {});
 
 	if (v::is_null(message.action.content)) {

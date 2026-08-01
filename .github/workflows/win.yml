@@ -66,10 +66,14 @@ jobs:
     steps:
       - name: Prepare directories.
         run: |
-          mkdir %userprofile%\TBuild\Libraries
-          mklink /d %GITHUB_WORKSPACE%\TBuild %userprofile%\TBuild
+          :: Short root path: Ninja Multi-Config object paths exceed MAX_PATH
+          :: under C:\Users\runneradmin\TBuild\... (C1083 empty generated file).
+          mkdir C:\TB\Libraries
+          mklink /d %GITHUB_WORKSPACE%\TBuild C:\TB
           echo TBUILD=%GITHUB_WORKSPACE%\TBuild>>%GITHUB_ENV%
           echo LibrariesPath=%GITHUB_WORKSPACE%\TBuild\Libraries${{ matrix.arch == 'x64' && '\win64' || '' }}>>%GITHUB_ENV%
+          git config --system core.longpaths true
+          reg add "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" /v LongPathsEnabled /t REG_DWORD /d 1 /f
 
       - name: Get repository name.
         shell: bash

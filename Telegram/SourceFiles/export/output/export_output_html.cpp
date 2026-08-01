@@ -1583,6 +1583,13 @@ auto HtmlWriter::Wrap::pushMessage(
 		return serviceFrom
 			+ " created a bot "
 			+ peers.wrapUserName(data.botId);
+	}, [&](const ActionChangeCommunity &data) {
+		if (data.communityId) {
+			return serviceFrom
+				+ " linked this chat to a community";
+		}
+		return serviceFrom
+			+ " unlinked this chat from its community";
 	}, [](v::null_t) { return QByteArray(); });
 
 	if (!serviceText.isEmpty()) {

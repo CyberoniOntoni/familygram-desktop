@@ -1892,6 +1892,12 @@ ServiceAction ParseServiceAction(
 		auto content = ActionManagedBotCreated();
 		content.botId = data.vbot_id().v;
 		result.content = content;
+	}, [&](const MTPDmessageActionChangeCommunity &data) {
+		auto content = ActionChangeCommunity();
+		if (const auto id = data.vcommunity_id()) {
+			content.communityId = ChannelId(id->v);
+		}
+		result.content = content;
 	}, [&](const MTPDmessageActionPollAppendAnswer &data) {
 		auto content = ActionPollAppendAnswer();
 		data.vanswer().match([&](const MTPDpollAnswer &answer) {

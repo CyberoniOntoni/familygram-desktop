@@ -767,6 +767,11 @@ struct ActionManagedBotCreated {
 	UserId botId = 0;
 };
 
+struct ActionChangeCommunity {
+	// Empty means community was unlinked; otherwise linked community bare id.
+	std::optional<ChannelId> communityId;
+};
+
 struct ServiceAction {
 	std::variant<
 		v::null_t,
@@ -827,7 +832,8 @@ struct ServiceAction {
 		ActionNoForwardsRequest,
 		ActionNewCreatorPending,
 		ActionChangeCreator,
-		ActionManagedBotCreated> content;
+		ActionManagedBotCreated,
+		ActionChangeCommunity> content;
 };
 
 ServiceAction ParseServiceAction(
