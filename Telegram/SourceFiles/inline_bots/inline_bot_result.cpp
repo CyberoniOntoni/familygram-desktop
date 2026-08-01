@@ -270,6 +270,10 @@ std::shared_ptr<Result> Result::Create(
 			qs(data.vmessage()),
 			Api::EntitiesFromMTP(session, data.ventities().value_or_empty()),
 			false);
+	}, [&](const MTPDbotInlineMessageRichMessage &) {
+		// Layer 228: rich inline (PageBlock) payloads not wired for send yet.
+		// Exhaustive match keeps MSVC happy; result is dropped via !sendData below.
+		LOG(("Inline Info: botInlineMessageRichMessage not supported yet."));
 	});
 
 	if (!result->sendData || !result->sendData->isValid()) {
