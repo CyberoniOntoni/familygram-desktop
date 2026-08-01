@@ -50,9 +50,11 @@ jobs:
       fail-fast: false
       matrix:
         # FamilyGram: 64-bit Windows + Qt 6 only (no ARM, no Qt 5 prepare).
+        # Drop Ninja Multi-Config: object paths still hit MAX_PATH/C1083 even
+        # under C:\TB (kimageformats autogen), and VS is the shippable build.
         arch: [x64]
         qt: [qt6]
-        generator: ["", "Ninja Multi-Config"]
+        generator: [""]
 
     env:
       UPLOAD_ARTIFACT: "true"

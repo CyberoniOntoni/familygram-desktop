@@ -1181,6 +1181,40 @@ QByteArray Parser::rich(const MTPRichText &text) {
 				{ { "class", "reference" } },
 				tag("a", { { "name", name } }) + inner);
 		}
+	// Layer 228 RichText constructors.
+	}, [&](const MTPDtextMath &data) {
+		return tag("code", { { "class", "math" } }, utf(data.vsource()));
+	}, [&](const MTPDtextCustomEmoji &data) {
+		return utf(data.valt());
+	}, [&](const MTPDtextSpoiler &data) {
+		return tag("span", { { "class", "spoiler" } }, rich(data.vtext()));
+	}, [&](const MTPDtextMention &data) {
+		return tag("span", { { "class", "mention" } }, rich(data.vtext()));
+	}, [&](const MTPDtextHashtag &data) {
+		return tag("span", { { "class", "hashtag" } }, rich(data.vtext()));
+	}, [&](const MTPDtextBotCommand &data) {
+		return tag("span", { { "class", "bot-command" } }, rich(data.vtext()));
+	}, [&](const MTPDtextCashtag &data) {
+		return tag("span", { { "class", "cashtag" } }, rich(data.vtext()));
+	}, [&](const MTPDtextAutoUrl &data) {
+		return rich(data.vtext());
+	}, [&](const MTPDtextAutoEmail &data) {
+		return rich(data.vtext());
+	}, [&](const MTPDtextAutoPhone &data) {
+		return rich(data.vtext());
+	}, [&](const MTPDtextBankCard &data) {
+		return tag("span", { { "class", "bank-card" } }, rich(data.vtext()));
+	}, [&](const MTPDtextMentionName &data) {
+		return tag("span", {
+			{ "class", "mention" },
+			{ "data-user-id", Number(data.vuser_id().v) },
+		}, rich(data.vtext()));
+	}, [&](const MTPDtextDate &data) {
+		return tag("time", {
+			{ "datetime", Number(data.vdate().v) },
+		}, rich(data.vtext()));
+	}, [&](const MTPDtextDiff &data) {
+		return tag("span", { { "class", "diff" } }, rich(data.vtext()));
 	});
 }
 
