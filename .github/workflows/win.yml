@@ -107,7 +107,9 @@ jobs:
       # windows-latest currently ships VS 18 (2026). GYP must not be pinned to a
       # missing VS 2022 install path (that broke Libraries/breakpad with
       # "vcvarsall.bat is missing").
-      - uses: ilammy/msvc-dev-cmd@v1.13.0
+      # step-security/msvc-dev-cmd is the maintained drop-in for ilammy/msvc-dev-cmd
+      # and runs on Node 24 (avoids "Node.js 20 is deprecated" CI annotations).
+      - uses: step-security/msvc-dev-cmd@v1.13.1
         name: Native Tools Command Prompt.
         with:
           arch: ${{ matrix.arch }}
