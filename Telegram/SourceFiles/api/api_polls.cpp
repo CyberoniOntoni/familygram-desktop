@@ -274,7 +274,8 @@ void Polls::close(not_null<HistoryItem*> item) {
 		MTPVector<MTPMessageEntity>(),
 		MTP_int(0), // schedule_date
 		MTP_int(0), // schedule_repeat_period
-		MTPint() // quick_reply_shortcut_id
+		MTPint(), // quick_reply_shortcut_id
+		MTPInputRichMessage() // rich_message
 	)).done([=](const MTPUpdates &result) {
 		_pollCloseRequestIds.erase(itemId);
 		_session->updates().applyUpdates(result);

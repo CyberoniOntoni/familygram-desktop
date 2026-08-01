@@ -12,6 +12,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "dialogs/dialogs_entry.h"
 #include "history/history.h"
 #include "data/data_session.h"
+#include "data/data_channel.h"
 #include "data/data_forum.h"
 
 namespace Dialogs {
@@ -98,10 +99,9 @@ void PinnedList::applyList(
 		}, [&](const MTPDdialogPeerFolder &data) {
 			addPinned(owner->folder(data.vfolder_id().v));
 		}, [&](const MTPDdialogPeerCommunity &data) {
-			if (const auto channel = owner->channelLoaded(
-					ChannelId(data.vcommunity_id().v))) {
-				addPinned(owner->history(channel));
-			}
+			const auto peerId = peerFromChannel(
+				ChannelId(data.vcommunity_id().v));
+			addPinned(owner->history(peerId));
 		});
 	}
 }

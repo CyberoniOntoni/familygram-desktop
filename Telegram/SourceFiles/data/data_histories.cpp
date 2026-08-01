@@ -20,6 +20,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "data/data_saved_sublist.h"
 #include "data/data_session.h"
 #include "data/data_user.h"
+#include "data/notify/data_notify_settings.h"
 #include "base/unixtime.h"
 #include "base/random.h"
 #include "main/main_session.h"

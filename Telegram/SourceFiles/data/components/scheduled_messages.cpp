@@ -260,6 +260,7 @@ void ScheduledMessages::sendNowSimpleMessage(
 			MTPMessageFwdHeader(),
 			MTPlong(), // via_bot_id
 			MTPlong(), // via_business_bot_id
+			MTPPeer(), // guestchat_via_from
 			replyHeader,
 			update.vdate(),
 			MTP_string(local->originalText().text),
@@ -285,7 +286,7 @@ void ScheduledMessages::sendNowSimpleMessage(
 			MTPSuggestedPost(),
 			MTPint(), // schedule_repeat_period
 			MTPstring(), // summary_from_language
-			MTPRichMessage()), // summary_from_language
+			MTPRichMessage()),
 		localFlags,
 		NewMessageType::Unread);
 

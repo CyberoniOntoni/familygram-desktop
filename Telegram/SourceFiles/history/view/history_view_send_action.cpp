@@ -132,6 +132,8 @@ bool SendActionPainter::updateNeedsAnimating(
 	}, [&](const MTPDsendMessageEmojiInteractionSeen &) {
 		// #TODO interaction
 	}, [&](const MTPDsendMessageTextDraftAction &) {
+	}, [&](const MTPDsendMessageRichMessageDraftAction &) {
+	}, [&](const MTPDinputSendMessageRichMessageDraftAction &) {
 	}, [&](const MTPDsendMessageCancelAction &) {
 		Unexpected("CancelAction here.");
 	});

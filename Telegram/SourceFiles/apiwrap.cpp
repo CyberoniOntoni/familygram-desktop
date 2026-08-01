@@ -971,7 +971,7 @@ void ApiWrap::updateDialogsOffset(
 	auto lastPeer = PeerId(0);
 	auto lastMsgId = MsgId(0);
 	for (const auto &dialog : ranges::views::reverse(dialogs)) {
-		dialog.match([&](const auto &dialog) {
+		dialog.match([&](const MTPDdialog &dialog) {
 			const auto peer = peerFromMTP(dialog.vpeer());
 			const auto messageId = dialog.vtop_message().v;
 			if (!peer || !messageId) {
@@ -992,6 +992,29 @@ void ApiWrap::updateDialogsOffset(
 					return;
 				}
 			}
+		}, [&](const MTPDdialogFolder &dialog) {
+			const auto peer = peerFromMTP(dialog.vpeer());
+			const auto messageId = dialog.vtop_message().v;
+			if (!peer || !messageId) {
+				return;
+			}
+			if (!lastPeer) {
+				lastPeer = peer;
+			}
+			if (!lastMsgId) {
+				lastMsgId = messageId;
+			}
+			for (const auto &message : ranges::views::reverse(messages)) {
+				if (IdFromMessage(message) == messageId
+					&& PeerFromMessage(message) == peer) {
+					if (const auto date = DateFromMessage(message)) {
+						lastDate = date;
+					}
+					return;
+				}
+			}
+		}, [](const MTPDdialogCommunity &) {
+			// No peer/top_message; skip for dialogs offset.
 		});
 		if (lastDate) {
 			break;
@@ -2252,7 +2275,8 @@ void ApiWrap::saveDraftsToCloud() {
 				cloudDraft->webpage,
 				textWithTags.text.isEmpty()),
 			MTP_long(0), // effect
-			Api::SuggestToMTP(cloudDraft->suggest)
+			Api::SuggestToMTP(cloudDraft->suggest),
+			MTPInputRichMessage() // rich_message
 		)).done([=](const MTPBool &result, const MTP::Response &response) {
 			const auto requestId = response.requestId;
 			history->finishSavingCloudDraft(
@@ -4268,7 +4292,8 @@ void ApiWrap::sendMessage(
 					mtpShortcut,
 					MTP_long(action.options.effectId),
 					MTP_long(starsPaid),
-					Api::SuggestToMTP(action.options.suggest)
+					Api::SuggestToMTP(action.options.suggest),
+					MTPInputRichMessage() // rich_message
 				), done, fail);
 		}
 		isFirst = false;

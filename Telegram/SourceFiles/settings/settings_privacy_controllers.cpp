@@ -210,7 +210,7 @@ AdminLog::OwnedItem GenerateForwardedItem(
 		MTPSuggestedPost(),
 		MTPint(), // schedule_repeat_period
 		MTPstring(), // summary_from_language
-	)MTPRichMessage()
+		MTPRichMessage()
 	).match([&](const MTPDmessage &data) {
 		return history->makeMessage(
 			history->nextNonHistoryEntryId(),

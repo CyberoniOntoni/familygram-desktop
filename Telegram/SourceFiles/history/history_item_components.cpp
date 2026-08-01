@@ -466,6 +466,10 @@ FullReplyTo ReplyToFromMTP(
 		return FullReplyTo{
 			.monoforumPeerId = parsed ? parsed->id : PeerId(),
 		};
+	}, [&](const MTPDinputReplyToEphemeralMessage &data) {
+		return FullReplyTo{
+			.messageId = { history->peer->id, data.vid().v },
+		};
 	});
 }
 
