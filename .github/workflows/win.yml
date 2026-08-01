@@ -164,7 +164,7 @@ jobs:
       - name: Read configuration matrix.
         shell: bash
         run: |
-          ARTIFACT_NAME="Telegram"
+          ARTIFACT_NAME="Familygram"
 
           ARCH=""
           if [ -n "${{ matrix.arch }}" ]; then
@@ -235,9 +235,18 @@ jobs:
         if: (env.UPLOAD_ARTIFACT == 'true') || (github.ref == 'refs/heads/nightly')
         run: |
           set OUT=%TBUILD%\%REPO_NAME%\out\Debug
+          echo Listing %OUT%:
+          dir /b "%OUT%\*.exe" 2>nul
+          if not exist "%OUT%\Familygram.exe" (
+            echo ERROR: Familygram.exe not found in %OUT%
+            dir /s /b "%TBUILD%\%REPO_NAME%\out\*.exe" 2>nul
+            exit /b 1
+          )
           mkdir artifact
-          move %OUT%\Telegram.exe artifact/
-          move %OUT%\Updater.exe artifact/
+          :: CMake OUTPUT_NAME is Familygram (not Telegram).
+          copy /y "%OUT%\Familygram.exe" artifact\ || exit /b 1
+          if exist "%OUT%\Updater.exe" copy /y "%OUT%\Updater.exe" artifact\
+          dir artifact
       - uses: actions/upload-artifact@v7
         name: Upload artifact.
         if: (env.UPLOAD_ARTIFACT == 'true') || (github.ref == 'refs/heads/nightly')
